@@ -4,20 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Sock;
-use App\Models\User;
 
 class SockController extends Controller
 {
     public function index()
     {
-        $socks = Sock::with('user')->get();
-        return view('socks.index', compact('socks'));
-    }
-
-    public function create()
-    {
-        $users = User::all();
-        return view('socks.create', compact('users'));
+        $socks = Sock::included()->filter()->get();
+        return response()->json($socks);
     }
 
     public function store(Request $request)
@@ -26,23 +19,17 @@ class SockController extends Controller
             'Guy' => 'required|string',
             'URL' => 'required|url',
             'Upload_Date' => 'required|date',
-            'users_id' => 'required|exists:users,id',
+            'user_id' => 'required|exists:users,id',
         ]);
 
-        Sock::create($request->all());
-
-        return redirect()->route('socks.index')->with('success', 'Sock creado con éxito.');
+        $sock = Sock::create($request->all());
+        return response()->json($sock, 201);
     }
 
-    public function show(Sock $sock)
+    public function show($id)
     {
-        return view('socks.show', compact('sock'));
-    }
-
-    public function edit(Sock $sock)
-    {
-        $users = User::all();
-        return view('socks.edit', compact('sock', 'users'));
+        $sock = Sock::included()->findOrFail($id);
+        return response()->json($sock);
     }
 
     public function update(Request $request, Sock $sock)
@@ -51,18 +38,16 @@ class SockController extends Controller
             'Guy' => 'required|string',
             'URL' => 'required|url',
             'Upload_Date' => 'required|date',
-            'users_id' => 'required|exists:users,id',
+            'user_id' => 'required|exists:users,id',
         ]);
 
         $sock->update($request->all());
-
-        return redirect()->route('socks.index')->with('success', 'Sock actualizado.');
+        return response()->json($sock);
     }
 
     public function destroy(Sock $sock)
     {
         $sock->delete();
-
-        return redirect()->route('socks.index')->with('success', 'Sock eliminado.');
+        return response()->json(['message' => 'Sock eliminado correctamente.']);
     }
 }

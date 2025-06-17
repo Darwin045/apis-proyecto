@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Notification;
-use App\Models\Trainer;
+
 
 class NotificationSeeder extends Seeder
 {
@@ -13,9 +13,9 @@ class NotificationSeeder extends Seeder
         // Asegurarse de que haya entrenadores primero
         Trainer::factory()->count(5)->create();
 
-        $trainers = Trainer::all();
+        $Notifications = Notification::all();
 
-        foreach ($trainers as $trainer) {
+        foreach ($notifications as $notification) {
             Notification::create([
                 'Trainer_id'  => $trainer->id,
                 'Title'       => 'Notificación para ' . $trainer->name,

@@ -3,21 +3,18 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Notification;
 
 class NotificationController extends Controller
 {
+    // Obtener todos con filtros y relaciones
     public function index()
     {
-        $notifications = Notification::with('trainers')->get();
-        return view('notifications.index', compact('notifications'));
+        $notifications = Notification::included()->filter()->get();
+        return response()->json($notifications);
     }
 
-    public function create()
-    {
-        $trainers = Trainer::all();
-        return view('notifications.create', compact('trainers'));
-    }
-
+    // Guardar una nueva notificación
     public function store(Request $request)
     {
         $request->validate([
@@ -26,22 +23,18 @@ class NotificationController extends Controller
             'Description' => 'required|string',
         ]);
 
-        Notification::create($request->all());
-
-        return redirect()->route('notifications.index')->with('success', 'Notificación creada exitosamente.');
+        $notification = Notification::create($request->all());
+        return response()->json($notification, 201);
     }
 
-    public function show(Notification $notification)
+    // Mostrar una notificación con relaciones si se piden
+    public function show($id)
     {
-        return view('notifications.show', compact('notification'));
+        $notification = Notification::included()->findOrFail($id);
+        return response()->json($notification);
     }
 
-    public function edit(Notification $notification)
-    {
-        $trainers = Trainer::all();
-        return view('notifications.edit', compact('notification', 'trainers'));
-    }
-
+    // Actualizar una notificación existente
     public function update(Request $request, Notification $notification)
     {
         $request->validate([
@@ -51,14 +44,14 @@ class NotificationController extends Controller
         ]);
 
         $notification->update($request->all());
-
-        return redirect()->route('notifications.index')->with('success', 'Notificación actualizada exitosamente.');
+        return response()->json($notification);
     }
 
+    // Eliminar una notificación
     public function destroy(Notification $notification)
     {
         $notification->delete();
-        return redirect()->route('notifications.index')->with('success', 'Notificación eliminada.');
+        return response()->json(['message' => 'Notificación eliminada correctamente.']);
     }
 }
 

@@ -2,67 +2,52 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Answer;
-use App\Models\topic;
-use App\Models\User;
 use Illuminate\Http\Request;
+use App\Models\Answer;
 
 class AnswerController extends Controller
 {
     public function index()
     {
-        $answers = Answer::all();
-        return view('answers.index', compact('answers'));
-    }
-
-    public function create()
-    {
-        $topics = topic::all(); // Obtener todos los temas
-        $users = User::all();   // Obtener todos los usuarios
-        return view('answers.create', compact('topics', 'users'));
+        $answers = Answer::included()->filter()->get();
+        return response()->json($answers);
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'content' => 'required|string',
+            'content' => 'required',
             'creation_date' => 'required|date',
-            'topic_id' => 'required|exists:topics,id',
             'users_id' => 'required|exists:users,id',
+            'topic_id' => 'required|exists:topics,id',
         ]);
 
-        Answer::create($request->all());
-        return redirect()->route('answers.index')->with('success', 'Respuesta creada con éxito.');
+        $answer = Answer::create($request->all());
+        return response()->json($answer);
     }
 
-    public function show(Answer $answer)
+    public function show($id)
     {
-        return view('answers.show', compact('answer'));
-    }
-
-    public function edit(Answer $answer)
-    {
-        $topics = topic::all(); // Obtener todos los temas
-        $users = User::all();   // Obtener todos los usuarios
-        return view('answers.edit', compact('answer', 'topics', 'users'));
+        $answer = Answer::included()->findOrFail($id);
+        return response()->json($answer);
     }
 
     public function update(Request $request, Answer $answer)
     {
         $request->validate([
-            'content' => 'required|string',
+            'content' => 'required',
             'creation_date' => 'required|date',
-            'topic_id' => 'required|exists:topics,id',
             'users_id' => 'required|exists:users,id',
+            'topic_id' => 'required|exists:topics,id',
         ]);
 
         $answer->update($request->all());
-        return redirect()->route('answers.index')->with('success', 'Respuesta actualizada con éxito.');
+        return response()->json($answer);
     }
 
     public function destroy(Answer $answer)
     {
         $answer->delete();
-        return redirect()->route('answers.index')->with('success', 'Respuesta eliminada con éxito.');
+        return response()->json(['message' => 'Respuesta eliminada.']);
     }
 }

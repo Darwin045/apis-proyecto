@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use Database\Seeders\NotificationSeeder;
 use Database\Seeders\SockSeeder;
-
+use Database\Seeders\AnwerSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
